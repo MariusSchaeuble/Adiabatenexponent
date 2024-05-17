@@ -12,7 +12,8 @@ from GPII import *
 from math import sqrt
 pi = math.pi
 
-
+matplotlib.rc('xtick', labelsize=20)
+matplotlib.rc('ytick', labelsize=20)
 
 def gauss(term):
     ids = identifier(term)
@@ -98,8 +99,10 @@ for i in range(len(W1)):
 #L: länge volumen in cm
 L_offset=6
 m_Schwingkoerper=11.67/1000
+sigma_m_Schwingkoerper = 0.01/1000
 #d: durchmesser schwingkörper
 d=1.65/100
+sigma_d = 0.25/1000
 
 #atmosphärendrucl literaturwert
 
@@ -119,45 +122,138 @@ W_CO2 = matrix("""
 
 V = ones(8)
 Tq = ones(8)
+sigma_Tq = ones(len(Tq))
 for i in range(len(V)):
     V[i] = W_CO2[i, 0]/100*pi*(10.3/200)**2
-    Tq[i] = (W_CO2[i, 1]/30000)**2
+
+    t = W_CO2[i, 1]
+    sigma_t = 500
+    Tq[i] = (t/30000)**2
+    sigma_Tq[i] = gauss("(t/30000)**2")
 
 
-plot(V, Tq, 'x', label="Measured Time, CO2", linewidth=3)
+errorbar(V, Tq, sigma_Tq, None, 'x', label="Measured Time, CO2", linewidth=3)
 optimizedParameters, s = opt.curve_fit(linear, V, Tq)
 plt.plot(V, linear(V, *optimizedParameters), label="fit")
 a_std, b_std = np.sqrt(np.diag(s))
-plt.rcParams['text.latex.preamble'] = r"\usepackage{amsmath}"
 
 #plt.title(r"$\alpha$", fontsize=25)
 plt.xlabel(r"Volumina in m^3", fontsize=25)
 plt.ylabel(r"T^2 in s^2", fontsize=25)
 legend(fontsize=15)
+grid()
 plt.tight_layout()
 savefig('co2.png')
 show()
 
+m = optimizedParameters[0]
+sigma_m = a_std
+
+p = 1005*100
+sigma_p = 10*100
+
+gamma_CO2 = 64*m_Schwingkoerper/(m*p*d**4)
+sigma_gamma_CO2 = gauss("64*m_Schwingkoerper/(m*p*d**4)")
+
 
 
 W_Argon = matrix("""
-0    5393
-4    7032
-8    8356
-12   9456
-16   10115
-18   10818
-24   12329
+0    5393;
+4    7032;
+8    8356;
+12   9456;
+16   10115;
+18   10818;
+24   12329;
 28   13577
 """)
 
+V = ones(8)
+Tq = ones(8)
+sigma_Tq = ones(len(Tq))
+for i in range(len(V)):
+    V[i] = W_Argon[i, 0]/100*pi*(10.3/200)**2
+
+    t = W_Argon[i, 1]
+    sigma_t = 500
+    Tq[i] = (t/30000)**2
+    sigma_Tq[i] = gauss("(t/30000)**2")
+
+
+errorbar(V, Tq, sigma_Tq, None, 'x', label="Measured Time, Argon", linewidth=3)
+optimizedParameters, s = opt.curve_fit(linear, V, Tq)
+plt.plot(V, linear(V, *optimizedParameters), label="fit")
+a_std, b_std = np.sqrt(np.diag(s))
+
+#plt.title(r"$\alpha$", fontsize=25)
+plt.xlabel(r"Volumina in m^3", fontsize=25)
+plt.ylabel(r"T^2 in s^2", fontsize=25)
+legend(fontsize=15)
+grid()
+plt.tight_layout()
+savefig('Argon.png')
+show()
+
+m = optimizedParameters[0]
+sigma_m = a_std
+
+p = 1005*100
+sigma_p = 10*100
+
+gamma_Argon = 64*m_Schwingkoerper/(m*p*d**4)
+sigma_gamma_Argon = gauss("64*m_Schwingkoerper/(m*p*d**4)")
+
 W_Stick = matrix("""
-0     5874
-4     7515
-8     8823
-12    9894
-16    10520
-20    112026
-24    12866
+0     5874;
+4     7515;
+8     8823;
+12    9894;
+16    10520;
+
+24    12866;
 28    13650
 """)
+
+# 20    112026; unrealistisch
+
+V = ones(7)
+Tq = ones(7)
+sigma_Tq = ones(len(Tq))
+for i in range(len(V)):
+    V[i] = W_Stick[i, 0]/100*pi*(10.3/200)**2
+
+    t = W_Stick[i, 1]
+    sigma_t = 500
+    Tq[i] = (t/30000)**2
+    sigma_Tq[i] = gauss("(t/30000)**2")
+
+
+errorbar(V, Tq, sigma_Tq, None, 'x', label="Measured Time, Stickstoff", linewidth=3)
+optimizedParameters, s = opt.curve_fit(linear, V, Tq)
+plt.plot(V, linear(V, *optimizedParameters), label="fit")
+a_std, b_std = np.sqrt(np.diag(s))
+
+#plt.title(r"$\alpha$", fontsize=25)
+plt.xlabel(r"Volumina in m^3", fontsize=25)
+plt.ylabel(r"T^2 in s^2", fontsize=25)
+legend(fontsize=15)
+grid()
+plt.tight_layout()
+savefig('Stick.png')
+show()
+
+m = optimizedParameters[0]
+sigma_m = a_std
+
+p = 1005*100
+sigma_p = 10*100
+
+gamma_Stick = 64*m_Schwingkoerper/(m*p*d**4)
+sigma_gamma_Stick = gauss("64*m_Schwingkoerper/(m*p*d**4)")
+
+
+#Messwerte drucken
+latexTable(UC(W1[:, 0], 'u'), UC(W1[:, 1], 'u'))
+latexTable(UC(W_CO2[:, 0], 'cm'), UC(W_CO2[:, 1], 'ms'))
+latexTable(UC(W_Argon[:, 0], 'cm'), UC(W_Argon[:, 1], 'ms'))
+latexTable(UC(W_Stick[:, 0], 'cm'), UC(W_Stick[:, 1], 'ms'))

@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/Adiabatenexponent.iml" filepath="$PROJECT_DIR$/.idea/Adiabatenexponent.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../Fresnelformeln/.idea/Fresnelformeln.iml" filepath="$PROJECT_DIR$/../Fresnelformeln/.idea/Fresnelformeln.iml" />
       <module fileurl="file://$PROJECT_DIR$/../Grundpraktikum/.idea/Grundpraktikum.iml" filepath="$PROJECT_DIR$/../Grundpraktikum/.idea/Grundpraktikum.iml" />
     </modules>
   </component>
